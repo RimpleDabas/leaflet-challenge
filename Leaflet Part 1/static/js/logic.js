@@ -1,12 +1,28 @@
-// Store our API endpoint as queryUrl.
+// // Store our API endpoint as queryUrl.
 let queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
+// define marker size function
+function markerSize(magnitude) {
+  return (magnitude) *5;
+}
 
-// console log to see the data format
+// define function for depth selection
+
+function depthColor(d) {
+  return d < 5 ? "#ebd234" :
+  d < 20 ? "#b4eb34" :
+  d < 40 ? "#34eb8c" :
+  d < 50 ? "#34ebba" :
+  d < 60 ? "#349eeb" :
+  d < 70 ? "#63542d" :
+  "#ba1c1c";
+}
+ // console log to see the data format
 
 d3.json(queryUrl).then(function (data) {
   console.log(data);
 });
+
 // Perform a GET request to the query URL/
 d3.json(queryUrl).then(function (data) {
   // Once we get a response, send the data.features object to the createFeatures function.
@@ -15,22 +31,22 @@ d3.json(queryUrl).then(function (data) {
 
 function createFeatures(earthquakeData) {
 
-  // Define a function that we want to run once for each feature in the features array.
-  // Give each feature a popup that describes the place and time of the earthquake.
-  function onEachFeature(feature, layer) {
+// Define a function that we want to run once for each feature in the features array.
+// Give each feature a popup that describes the place and time of the earthquake.
+    function onEachFeature(feature, layer) {
     layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
   }
 
-  // Create a GeoJSON layer that contains the features array on the earthquakeData object.
-  // Run the onEachFeature function once for each piece of data in the array.
-  let earthquakes = L.geoJSON(earthquakeData, {
-    onEachFeature: onEachFeature,
-    pointToLayer: Markers
-  });
+//   // Create a GeoJSON layer that contains the features array on the earthquakeData object.
+//   // Run the onEachFeature function once for each piece of data in the array.
+    let earthquakes = L.geoJSON(earthquakeData, {
+      onEachFeature: onEachFeature,
+      pointToLayer : Markers
+});
 
-  // Send our earthquakes layer to the createMap function/
-  createMap(earthquakes);
-}
+// Send our earthquakes layer to the createMap function/
+    createMap(earthquakes);
+ }
 
 function createMap(earthquakes) {
 
@@ -70,44 +86,23 @@ function createMap(earthquakes) {
     collapsed: false
   }).addTo(myMap);
   // // Add legend specifics
-var legend = L.control({position: "bottomright"});
+  var legend = L.control({position: "bottomright"});
 
-legend.onAdd = function(map) {
-    var div = L.DomUtil.create("div", "info legend"),
-    depths = [5, 20, 40, 50, 60, 70];
+  legend.onAdd = function(map) {
+      var div = L.DomUtil.create("div", "info legend"),
+      depths = [5, 20, 40, 50, 60, 70];
 
-    div.innerHTML += "<h3 style='text-align: center'>Depths</h3>"
-    for (var i = 0; i < depths.length; i++) {
-        div.innerHTML += '<i style=”background:' + depthColor(depths[i] + 1) + '"></i> '+ depths[i] + (depths[i + 1] ? '&ndash;' + depths[i + 1] + '<br>' : '+');
-        }
-        return div;
+      div.innerHTML += "<h3 style='text-align: center'>Depths</h3>"
+      for (var i = 0; i < depths.length; i++) {
+        div.innerHTML +=
+        '<i style="background:' + depthColor(depths[i] + 1) + '"></i> ' +
+        depths[i] + (depths[i + 1] ? '&ndash;' + depths[i + 1] + '<br>' : '+');
+          }
+          return div;
         
+  }
+  legend.addTo(myMap)
 }
-legend.addTo(myMap)
-}
-
-function markerSize(magnitude) {
-    return (magnitude) *5;
-}
-
-function depthColor(d) {
-    return d < 5 ? "#ebd234" :
-    d < 20 ? "#b4eb34" :
-    d < 40 ? "#34eb8c" :
-    d < 50 ? "#34ebba" :
-    d < 60 ? "#349eeb" :
-    "#eb3461";
-    }
-// function depthColor(depth){
-//     if (depth < 5) return "#ebd234";
-//     else if (depth < 15) return "#b4eb34";
-//     else if (depth < 30) return "#34eb8c";
-//     else if (depth < 45) return "#34ebba";
-//     else if (depth < 60) return "#349eeb";
-//     else return "#eb3461";
-// }
-
-
 function Markers(feature, latlng){
     let choices = {
         radius : markerSize(feature.properties.mag),
@@ -119,5 +114,6 @@ function Markers(feature, latlng){
     } 
     return L.circleMarker(latlng,choices);
 }
+
 
 
